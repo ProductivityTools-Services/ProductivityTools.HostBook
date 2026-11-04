@@ -63,7 +63,7 @@ $Payload   = @{
     hostname  = $Hostname
     ips       = $LocalIps
     os        = "windows"
-    updatedAt = @{ ".sv" = "timestamp" }
+    updatedAt = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 } | ConvertTo-Json -Compress
 
 Invoke-RestMethod -Method Put -Uri $ReportUrl -ContentType "application/json; charset=utf-8" -Body $Payload | Out-Null
