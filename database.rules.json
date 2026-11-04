@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "hosts": {
+      ".read": "auth != null && (auth.uid === 'pYsR9fxDbyaygNATHH0Lyriz9M13' || auth.uid === 'Ht8uHfwFDrc7PNfWsBHlNcaZyZH3')",
+      ".write": "auth != null && (auth.uid === 'pYsR9fxDbyaygNATHH0Lyriz9M13' || auth.uid === 'Ht8uHfwFDrc7PNfWsBHlNcaZyZH3')"
+    }
+  }
+}
