@@ -57,12 +57,18 @@ $IdToken      = $AuthResponse.idToken
 
 Write-output "OK: Zalogowano do Firebase Auth, idToken: $IdToken"   
 
-# 4. Wyslanie danych (PUT) do Firebase Realtime Database
+# 4. Pobranie czasu dzialania komputera (Uptime) i wyslanie danych (PUT) do Firebase Realtime Database
+$BootTime   = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
+$UptimeSpan = (Get-Date) - $BootTime
+$Uptime     = "{0}d {1:D2}h {2:D2}m" -f $UptimeSpan.Days, $UptimeSpan.Hours, $UptimeSpan.Minutes
+
 $ReportUrl = "$DbUrl/hosts/$HostKey.json?auth=$IdToken"
 $Payload   = @{
     hostname  = $Hostname
     ips       = $LocalIps
     os        = "windows"
+    uptime    = $Uptime
+    bootTime  = $BootTime.ToString("yyyy-MM-dd HH:mm:ss")
     updatedAt = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 } | ConvertTo-Json -Compress
 

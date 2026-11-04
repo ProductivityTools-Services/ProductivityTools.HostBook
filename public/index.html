@@ -377,13 +377,14 @@
               <th>Komputer</th>
               <th>System</th>
               <th>Adresy IP (kliknij aby skopiować)</th>
+              <th>Czas działania</th>
               <th>Ostatnia aktualizacja</th>
               <th>Szybkie akcje</th>
             </tr>
           </thead>
           <tbody id="hosts-tbody">
             <tr>
-              <td colspan="5" style="text-align: center; color: var(--muted);">Ładowanie danych...</td>
+              <td colspan="6" style="text-align: center; color: var(--muted);">Ładowanie danych...</td>
             </tr>
           </tbody>
         </table>
@@ -464,7 +465,7 @@
 
       hostsTbody.innerHTML = "";
       if (!data) {
-        hostsTbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);">Brak zarejestrowanych komputerów w bazie.</td></tr>`;
+        hostsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);">Brak zarejestrowanych komputerów w bazie.</td></tr>`;
         return;
       }
 
@@ -480,6 +481,8 @@
           : host.ip
           ? [host.ip]
           : [];
+        const uptime = host.uptime || "-";
+        const bootTime = host.bootTime ? `Uruchomiony: ${host.bootTime}` : "";
         const updatedAt = host.updatedAt || "-";
         const online = isRecent(updatedAt);
         const primaryIp = ips[0] || "";
@@ -506,6 +509,7 @@
           <td class="host-name">${hostname}</td>
           <td><span class="os-badge">${os}</span></td>
           <td><div class="ip-list">${ipsHtml}</div></td>
+          <td title="${bootTime}" style="color: var(--text-secondary); font-size: 0.88rem;">${uptime}</td>
           <td>
             <div class="status-wrap">
               <span class="dot ${online ? "online" : "stale"}" title="${online ? "Aktywny (<15 min)" : "Starszy raport"}"></span>
