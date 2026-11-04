@@ -1,0 +1,65 @@
+$ErrorActionPreference = "Stop"
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+# 1. Wyszukanie pliku .env w katalogu home.configuration obok repozytorium
+$CandidatePaths = @(
+    (Join-Path $PSScriptRoot "..\home.configuration\hostbook.env"),
+    (Join-Path $PSScriptRoot "..\github\home.configuration\hostbook.env")
+)
+
+$EnvFile = $CandidatePaths | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $EnvFile) {
+    Write-Error "Nie znaleziono pliku .env w katalogu home.configuration obok projektu."
+}
+
+$Config = @{}
+Get-Content $EnvFile | ForEach-Object {
+    $line = $_.Trim()
+    if ($line -and -not $line.StartsWith("#") -and $line.Contains("=")) {
+        $parts = $line.Split("=", 2)
+        $Config[$parts[0].Trim()] = $parts[1].Trim()
+    }
+}
+
+$ApiKey   = $Config["FIREBASE_API_KEY"]
+$DbUrl    = $Config["FIREBASE_DB_URL"].TrimEnd("/")
+$Email    = $Config["FIREBASE_EMAIL"]
+$Password = $Config["FIREBASE_PASSWORD"]
+
+# 2. Pobranie wszystkich aktywnych adresów IPv4 (poza 127.0.0.1 i 169.254.x.x)
+$LocalIps = @(
+    Get-NetIPAddress -AddressFamily IPv4 |
+    Where-Object { $_.IPAddress -ne "127.0.0.1" -and -not $_.IPAddress.StartsWith("169.254.") } |
+    Select-Object -ExpandProperty IPAddress
+)
+
+if ($LocalIps.Count -eq 0) {
+    Write-Output "Brak aktywnych adresow IP - pomijam wysylke."
+    exit 0
+}
+
+$Hostname = $env:COMPUTERNAME
+$HostKey  = $Hostname.ToLower() -replace '[.#$\[\]/]', '-'
+
+# 3. Pobranie tokenu (idToken) z Firebase Auth
+$AuthUrl  = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$ApiKey"
+$AuthBody = @{
+    email             = $Email
+    password          = $Password
+    returnSecureToken = $true
+} | ConvertTo-Json -Compress
+
+$AuthResponse = Invoke-RestMethod -Method Post -Uri $AuthUrl -ContentType "application/json" -Body $AuthBody
+$IdToken      = $AuthResponse.idToken
+
+# 4. Wyslanie danych (PUT) do Firebase Realtime Database
+$ReportUrl = "$DbUrl/hosts/$HostKey.json?auth=$IdToken"
+$Payload   = @{
+    hostname  = $Hostname
+    ips       = $LocalIps
+    os        = "windows"
+    updatedAt = @{ ".sv" = "timestamp" }
+} | ConvertTo-Json -Compress
+
+Invoke-RestMethod -Method Put -Uri $ReportUrl -ContentType "application/json; charset=utf-8" -Body $Payload | Out-Null
+Write-Output "OK: Zaktualizowano $Hostname ($($LocalIps -join ', '))"

@@ -1,1 +1,20 @@
+user:localips@pt.technical.account
+useruuid:Ht8uHfwFDrc7PNfWsBHlNcaZyZH3
 
+apiKey:"AIzaSyAxmnZm45fdsfafasfaf97RcMVQeJrby3HpuDfzYyTJoU",
+project pt-hostbook
+
+
+https://ptprojectsweb-default-rtdb.europe-west1.firebasedatabase.app/
+
+Rules
+```
+{
+  "rules": {
+    "hosts": {
+      ".read": "auth != null && auth.uid === 'Ht8uHfwFDrc7PNfWsBHlNcaZyZH3'",
+      ".write": "auth != null && auth.uid === 'Ht8uHfwFDrc7PNfWsBHlNcaZyZH3'"
+    }
+  }
+}
+```
