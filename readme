@@ -1,19 +1,17 @@
-user:localips@pt.technical.account
-useruuid:Ht8uHfwFDrc7PNfWsBHlNcaZyZH3
+user (technical): hostbook@tech.user
+useruuid: pYsR9fxDbyaygNATHH0Lyriz9M13
+web login (Google): pwujczyk@gmail.com
 
-apiKey:"AIzaSyAxmnZm45fdsfafasfaf97RcMVQeJrby3HpuDfzYyTJoU",
-project pt-hostbook
-
-
+project: ptprojectsweb (site: pt-hostbook)
 https://ptprojectsweb-default-rtdb.europe-west1.firebasedatabase.app/
 
 Rules
-```
+```json
 {
   "rules": {
     "hosts": {
-      ".read": "auth != null && auth.uid === 'Ht8uHfwFDrc7PNfWsBHlNcaZyZH3'",
-      ".write": "auth != null && auth.uid === 'Ht8uHfwFDrc7PNfWsBHlNcaZyZH3'"
+      ".read": "auth != null && (auth.token.email === 'pwujczyk@gmail.com' || auth.uid === 'pYsR9fxDbyaygNATHH0Lyriz9M13')",
+      ".write": "auth != null && (auth.token.email === 'pwujczyk@gmail.com' || auth.uid === 'pYsR9fxDbyaygNATHH0Lyriz9M13')"
     }
   }
 }

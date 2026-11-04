@@ -359,21 +359,13 @@
   </div>
 
   <div class="container">
-    <!-- Widok logowania -->
-    <div id="login-view" class="card hidden">
-      <h2 style="margin-bottom: 14px; font-size: 1.1rem; color: var(--text);">Logowanie</h2>
-      <form id="login-form">
-        <div class="form-group">
-          <label for="email">E-mail</label>
-          <input type="email" id="email" value="hostbook@tech.user" required />
-        </div>
-        <div class="form-group">
-          <label for="password">Hasło</label>
-          <input type="password" id="password" placeholder="Wpisz hasło..." required autofocus />
-        </div>
-        <button type="submit" class="btn-primary">Zaloguj</button>
-        <div id="login-error" class="error-msg"></div>
-      </form>
+    <!-- Widok logowania (Google Auth wzorowany na Journal.Web) -->
+    <div id="login-view" class="card hidden" style="text-align: center;">
+      <h2 style="margin-bottom: 16px; font-size: 1.1rem; color: var(--text);">Zaloguj się</h2>
+      <button id="google-login-btn" class="btn-primary" style="background: #4285f4; border-color: #4285f4;">
+        Login with Google
+      </button>
+      <div id="login-error" class="error-msg"></div>
     </div>
 
     <!-- Widok tabeli -->
@@ -409,6 +401,7 @@
   <script>
     const firebaseConfig = {
       apiKey: ["AIzaSyAxmnZm4", "597RcMVQeJrby3HpuDfzYyTJoU"].join(""),
+      authDomain: "ptprojectsweb.firebaseapp.com",
       databaseURL: "https://ptprojectsweb-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "ptprojectsweb"
     };
@@ -422,7 +415,7 @@
     const lastSyncLabel = document.getElementById("last-sync-label");
     const loginView = document.getElementById("login-view");
     const dashboardView = document.getElementById("dashboard-view");
-    const loginForm = document.getElementById("login-form");
+    const googleLoginBtn = document.getElementById("google-login-btn");
     const loginError = document.getElementById("login-error");
     const hostsTbody = document.getElementById("hosts-tbody");
     const logoutBtn = document.getElementById("logout-btn");
@@ -550,16 +543,13 @@
       }
     });
 
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    googleLoginBtn.addEventListener("click", async () => {
       loginError.style.display = "none";
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-
       try {
-        await auth.signInWithEmailAndPassword(email, password);
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await auth.signInWithPopup(provider);
       } catch (err) {
-        loginError.textContent = "Błąd logowania: nieprawidłowy e-mail lub hasło.";
+        loginError.textContent = "Błąd logowania Google: " + err.message;
         loginError.style.display = "block";
       }
     });
