@@ -3,8 +3,8 @@ $ErrorActionPreference = "Stop"
 
 # 1. Wyszukanie pliku .env w katalogu home.configuration obok repozytorium
 $CandidatePaths = @(
-    (Join-Path $PSScriptRoot "..\home.configuration\hostbook.env"),
-    (Join-Path $PSScriptRoot "..\github\home.configuration\hostbook.env")
+    (Join-Path $PSScriptRoot "..\..\Home.Configuration\hostbook.env"),
+    (Join-Path $PSScriptRoot "..\..\github\Home.Configuration\hostbook.env")
 )
 
 $EnvFile = $CandidatePaths | Where-Object { Test-Path $_ } | Select-Object -First 1
@@ -33,6 +33,8 @@ $LocalIps = @(
     Select-Object -ExpandProperty IPAddress
 )
 
+Write-Output $LocalIps
+
 if ($LocalIps.Count -eq 0) {
     Write-Output "Brak aktywnych adresow IP - pomijam wysylke."
     exit 0
@@ -41,6 +43,7 @@ if ($LocalIps.Count -eq 0) {
 $Hostname = $env:COMPUTERNAME
 $HostKey  = $Hostname.ToLower() -replace '[.#$\[\]/]', '-'
 
+Write-Output "$apiKey, $DbUrl, $Email, $Password, $Hostname, $HostKey"
 # 3. Pobranie tokenu (idToken) z Firebase Auth
 $AuthUrl  = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$ApiKey"
 $AuthBody = @{
@@ -51,6 +54,8 @@ $AuthBody = @{
 
 $AuthResponse = Invoke-RestMethod -Method Post -Uri $AuthUrl -ContentType "application/json" -Body $AuthBody
 $IdToken      = $AuthResponse.idToken
+
+Write-output "OK: Zalogowano do Firebase Auth, idToken: $IdToken"   
 
 # 4. Wyslanie danych (PUT) do Firebase Realtime Database
 $ReportUrl = "$DbUrl/hosts/$HostKey.json?auth=$IdToken"
